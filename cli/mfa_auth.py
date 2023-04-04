@@ -7,7 +7,7 @@ Usage:
 
 .. code-block:: bash
 
-    python aws_mfa_auth.py --base_profile your_profile --mfa_token 123456
+    python mfa_auth.py --base_profile your_profile --mfa_token 123456
 """
 
 import fire
@@ -16,7 +16,7 @@ from awscli_mate.awscli import AWSCliConfig
 awscli_config = AWSCliConfig()
 
 
-def auth(
+def mfa_auth(
     base_profile: str,
     mfa_token: str,
 ):
@@ -28,4 +28,4 @@ def auth(
 
 
 if __name__ == "__main__":
-    fire.Fire(auth)
+    fire.Fire(mfa_auth)
