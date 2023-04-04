@@ -2,14 +2,14 @@
 
 import os
 from awscli_mate.tests.paths import dir_tests
-from awscli_mate.config_parser import Config
+from awscli_mate.config_parser import ConfigEditor
 
 
-class TestConfig:
+class TestConfigEditor:
     def test(self):
         config_file = dir_tests.joinpath("test.ini")
         dump_config_file = dir_tests.joinpath("dump-test.ini")
-        config = Config.from_file(config_file)
+        config = ConfigEditor.from_file(config_file)
 
         config.put("bob", "email", "bob@gmail.com")
         config.put("bob", "pwd", "bobpassword")
@@ -24,7 +24,7 @@ class TestConfig:
 
         config.dump(dump_config_file)
 
-        new_config = Config.from_file(dump_config_file)
+        new_config = ConfigEditor.from_file(dump_config_file)
         assert new_config._data == {
             "default": {"name": "cathy", "email": "cathy@email.com"},
             "profile alice": {

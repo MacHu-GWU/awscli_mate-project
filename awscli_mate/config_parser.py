@@ -20,7 +20,14 @@ from pathlib import Path
 
 
 @dataclasses.dataclass
-class Config:
+class ConfigEditor:
+    """
+    :param file: Path to the config file
+    :param _config: ``configparser.ConfigParser`` instance
+    :param _data: ``dict`` of ``dict``s, where the first key is the section name
+        and the second key is the key value pair in the section
+    :param _lines: ``list`` of lines in the config file for in-memory editing
+    """
     file: Path = dataclasses.field()
     _config: configparser.ConfigParser = dataclasses.field()
     _data: T.Dict[str, T.Dict[str, str]] = dataclasses.field()
