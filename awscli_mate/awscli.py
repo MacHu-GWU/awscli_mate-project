@@ -88,17 +88,24 @@ class AWSCliConfig:
         self.ensure_profile_exists("default", config, credentials)
         self.ensure_profile_exists(profile, config, credentials)
 
-        self.clear_section_data(config, "default")
-        self.copy_section_data(config, f"profile {profile}", "default")
+        flag_is_config_changed = self.replace_section_data(
+            config,
+            from_section_name=f"profile {profile}",
+            to_section_name="default",
+        )
+        flag_is_credentials_changed = self.replace_section_data(
+            credentials,
+            from_section_name=profile,
+            to_section_name="default",
+        )
 
-        self.clear_section_data(credentials, "default")
-        self.copy_section_data(config, profile, "default")
+        if flag_is_config_changed:
+            with self.path_config.open("w") as f:
+                config.write(f)
 
-        with self.path_config.open("w") as f:
-            config.write(f)
-
-        with self.path_credentials.open("w") as f:
-            credentials.write(f)
+        if flag_is_credentials_changed:
+            with self.path_credentials.open("w") as f:
+                credentials.write(f)
 
     def mfa_auth(
         self,
