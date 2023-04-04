@@ -52,7 +52,14 @@
 Welcome to ``awscli_mate`` Documentation
 ==============================================================================
 
-Documentation for ``awscli_mate``.
+
+MFA auth
+------------------------------------------------------------------------------
+Example:
+
+.. code-block:: python
+
+    python aws_mfa_auth.py --base_profile your_profile --mfa_token 123456
 
 
 .. _install:
