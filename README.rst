@@ -51,15 +51,33 @@
 
 Welcome to ``awscli_mate`` Documentation
 ==============================================================================
+``awscli_mate`` improves the original AWS CLI.
+
+Make sure you have done::
+
+    pip install awscli_mate
+    pip install boto3
+    pip install fire
 
 
-MFA auth
+Set AWS Profile as Default
 ------------------------------------------------------------------------------
 Example:
 
 .. code-block:: python
 
-    python aws_mfa_auth.py --base_profile your_profile --mfa_token 123456
+    python cli/set_default.py --profile your_profile
+
+
+One Click MFA auth
+------------------------------------------------------------------------------
+Example:
+
+.. code-block:: python
+
+    python cli/mfa_auth.py --base_profile your_profile --mfa_token 123456
+
+Note that this command also automatically set the MFA profile as default profile.
 
 
 .. _install:
