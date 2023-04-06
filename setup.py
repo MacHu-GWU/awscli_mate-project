@@ -184,6 +184,11 @@ if __name__ == "__main__":
         license=LICENSE,
         install_requires=REQUIRES,
         extras_require=EXTRA_REQUIRE,
+        entry_points={
+            "console_scripts": [
+                "awscli_mate=awscli_mate:main",
+            ],
+        },
     )
 
 """
