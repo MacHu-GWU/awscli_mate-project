@@ -4,7 +4,7 @@ Release and Version History
 ==============================================================================
 
 
-0.0.3 (TODO)
+Backlog
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
 
@@ -15,18 +15,21 @@ Release and Version History
 **Miscellaneous**
 
 
-0.0.2 (TODO)
+0.2.1 (2023-04-05)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
 
-**Minor Improvements**
+- add ``awscli_mate`` CLI interface.
 
-**Bugfixes**
+
+0.1.1 (2023-04-04)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Features and Improvements**
+
+- add :class:`awscli_mate.awscli.AWSCliConfig` to public API. It provides awscli enhancement utilities.
+- add :meth:`awscli_mate.awscli.AWSCliConfig.set_profile_as_default`.
+- add :meth:`awscli_mate.awscli.AWSCliConfig.mfa_auth`.
 
 **Miscellaneous**
-
-
-0.0.1 (2023-04-04)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - First release

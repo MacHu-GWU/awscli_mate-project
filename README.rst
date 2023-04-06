@@ -66,7 +66,7 @@ Example:
 
 .. code-block:: python
 
-    python cli/set_default.py --profile your_profile
+    awscli_mate set_profile_as_default --profile=your_profile
 
 
 One Click MFA auth
@@ -75,7 +75,7 @@ Example:
 
 .. code-block:: python
 
-    python cli/mfa_auth.py --base_profile your_profile --mfa_token 123456
+    awscli_mate mfa_auth --profile=your_profile --mfa_code=123456 --hours=12 --overwrite_default=True
 
 Note that this command also automatically set the MFA profile as default profile.
 
