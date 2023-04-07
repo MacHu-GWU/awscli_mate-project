@@ -21,10 +21,16 @@ Backlog
 
 - add ``SectionTypeEnum``, ``ConfigKeyEnum``, ``CredentialKeyEnum`` to public API.
 
+**Minor Improvements**
+
+- use automic write to write config / credentials file
+
 **Miscellaneous**
 
 - add lots of unit test for edge cases.
+- reach 100% coverage test.
 - add more doc string.
+
 
 
 0.2.1 (2023-04-05)

@@ -9,6 +9,7 @@ import dataclasses
 from pathlib import Path
 import configparser
 
+from atomicwrites import atomic_write
 from commentedconfigparser import CommentedConfigParser
 
 from .paths import path_config, path_credentials
@@ -94,10 +95,14 @@ class AWSCliConfig:
         config: CommentedConfigParser,
         from_section_name: str,
         to_section_name: str,
+        create_if_not_exist: bool = False,
     ):
         """
         Copy section data from one profile to another.
         """
+        if create_if_not_exist:
+            if to_section_name not in config:
+                config[to_section_name] = {}
         for k, v in list(config[from_section_name].items()):
             config[to_section_name][k] = v
 
@@ -106,11 +111,18 @@ class AWSCliConfig:
         config: CommentedConfigParser,
         from_section_name: str,
         to_section_name: str,
+        create_if_not_exist: bool = False,
     ) -> bool:
         """
         Replace section data, return a boolean flag to indicate that whether
         there is any data change.
         """
+        if create_if_not_exist:
+            if to_section_name not in config:
+                config[to_section_name] = {
+                    "this_is_a_dummy_key": "this_is_a_dummy_value"
+                }
+
         if dict(config[from_section_name]) == dict(config[to_section_name]):
             return False
 
@@ -201,18 +213,27 @@ class AWSCliConfig:
         # update config / credentials data in memory
         new_profile = "{}_mfa".format(profile)
 
+        # update config data
         # set initial value if section not exists
         if f"profile {new_profile}" not in config:
-            config[f"profile {new_profile}"] = {}
+            flag_is_config_changed = True
+            self.copy_section_data(
+                config,
+                from_section_name=f"profile {profile}",
+                to_section_name=f"profile {new_profile}",
+            )
+        else:
+            flag_is_config_changed = False
+
+        # because mfa_auth is for the credentials
+        # we respect the ``..._mfa`` profile if it already exists,
+        # and it is different from te base profile
+        # we don't do ``replace_section_data`` here
+
+        # update credential data
+        # set initial value if section not exists
         if new_profile not in credentials:
             credentials[new_profile] = {}
-
-        flag_is_config_changed = self.replace_section_data(
-            config,
-            from_section_name=f"profile {profile}",
-            to_section_name=f"profile {new_profile}",
-        )
-
         self.clear_section_data(credentials, new_profile)
         credentials[new_profile]["aws_access_key_id"] = aws_access_key_id
         credentials[new_profile]["aws_secret_access_key"] = aws_secret_access_key
@@ -224,8 +245,8 @@ class AWSCliConfig:
 
         # update ~/.aws/config and ~/.aws/credentials file
         if flag_is_config_changed:
-            with self.path_config.open("w") as f:
+            with atomic_write(f"{self.path_config}", overwrite=True) as f:
                 config.write(f)
 
-        with self.path_credentials.open("w") as f:
+        with atomic_write(f"{self.path_credentials}", overwrite=True) as f:
             credentials.write(f)
