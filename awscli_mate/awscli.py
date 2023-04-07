@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+This module provides a set of functions to interact with AWS CLI.
+"""
+
 import typing as T
 import dataclasses
 from pathlib import Path
@@ -13,6 +17,10 @@ from . import exc
 
 @dataclasses.dataclass
 class AWSCliConfig:
+    """
+    Abstraction of the AWS CLI config files.
+    """
+
     path_config: Path = dataclasses.field(default=path_config)
     path_credentials: Path = dataclasses.field(default=path_credentials)
 
@@ -49,6 +57,9 @@ class AWSCliConfig:
         config: CommentedConfigParser,
         credentials: CommentedConfigParser,
     ):
+        """
+        Ensure the profile exists in the config and credentials object.
+        """
         msg = "Profile [{}] not found in {}"
 
         if profile != "default":
@@ -84,6 +95,9 @@ class AWSCliConfig:
         from_section_name: str,
         to_section_name: str,
     ):
+        """
+        Copy section data from one profile to another.
+        """
         for k, v in list(config[from_section_name].items()):
             config[to_section_name][k] = v
 
@@ -105,6 +119,9 @@ class AWSCliConfig:
         return True
 
     def set_profile_as_default(self, profile: str):
+        """
+        Set the given profile as the default profile by replacing the section data.
+        """
         if profile == "default":
             return
 

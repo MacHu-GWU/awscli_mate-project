@@ -15,6 +15,18 @@ Backlog
 **Miscellaneous**
 
 
+0.3.1 (2023-04-06)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Features and Improvements**
+
+- add ``SectionTypeEnum``, ``ConfigKeyEnum``, ``CredentialKeyEnum`` to public API.
+
+**Miscellaneous**
+
+- add lots of unit test for edge cases.
+- add more doc string.
+
+
 0.2.1 (2023-04-05)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
