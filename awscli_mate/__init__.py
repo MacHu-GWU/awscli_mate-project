@@ -16,6 +16,9 @@ __github_username__ = "MacHu-GWU"
 try:
     from .api import (
         AWSCliConfig,
+        SectionTypeEnum,
+        ConfigKeyEnum,
+        CredentialKeyEnum,
     )
 except ImportError as e:  # pragma: no cover
     print(e)
