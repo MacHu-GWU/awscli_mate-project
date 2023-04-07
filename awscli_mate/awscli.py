@@ -3,10 +3,12 @@
 import typing as T
 import dataclasses
 from pathlib import Path
+import configparser
+
 from commentedconfigparser import CommentedConfigParser
 
 from .paths import path_config, path_credentials
-from .exc import ProfileNotFoundError
+from . import exc
 
 
 @dataclasses.dataclass
@@ -14,11 +16,31 @@ class AWSCliConfig:
     path_config: Path = dataclasses.field(default=path_config)
     path_credentials: Path = dataclasses.field(default=path_credentials)
 
-    def read_config(self) -> T.Tuple[CommentedConfigParser, CommentedConfigParser]:
-        config = CommentedConfigParser()
-        config.read(self.path_config)
-        credentials = CommentedConfigParser()
-        credentials.read(self.path_credentials)
+    def read_config(
+        self,
+    ) -> T.Tuple[CommentedConfigParser, CommentedConfigParser,]:
+        """
+        parse ~/.aws/config and ~/.aws/credentials file, return two config objects.
+        """
+        if not self.path_config.exists():
+            raise exc.AWSConfigFileNotExistError(f"{self.path_config} not exist!")
+        if not self.path_credentials.exists():
+            raise exc.AWSCredentialsFileNotExistError(
+                f"{self.path_credentials} not exist!"
+            )
+
+        try:
+            config = CommentedConfigParser()
+            config.read(self.path_config)
+        except configparser.ParsingError as e:
+            raise exc.MalformedConfigFileError(str(e))
+
+        try:
+            credentials = CommentedConfigParser()
+            credentials.read(self.path_credentials)
+        except configparser.ParsingError as e:
+            raise exc.MalformedConfigFileError(str(e))
+
         return config, credentials
 
     def ensure_profile_exists(
@@ -34,11 +56,13 @@ class AWSCliConfig:
         else:
             section_name = profile
         if section_name not in config:
-            raise ProfileNotFoundError(msg.format(section_name, self.path_config))
+            raise exc.ProfileNotFoundError(msg.format(section_name, self.path_config))
 
         section_name = profile
         if section_name not in credentials:
-            raise ProfileNotFoundError(msg.format(section_name, self.path_credentials))
+            raise exc.ProfileNotFoundError(
+                msg.format(section_name, self.path_credentials)
+            )
 
     def clear_section_data(
         self,

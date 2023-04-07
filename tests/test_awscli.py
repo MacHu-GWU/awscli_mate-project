@@ -16,25 +16,7 @@ path_aws_credentials: Path = dir_aws_tmp.joinpath("credentials")
 
 
 class TestCliConfig:
-    @classmethod
-    def cleanup(cls):
-        if dir_aws_tmp.exists():
-            shutil.rmtree(str(dir_aws_tmp))
-
-    @classmethod
-    def setup_class(cls):
-        cls.cleanup()
-        shutil.copytree(str(dir_aws), str(dir_aws_tmp))
-
-    @classmethod
-    def teardown_class(cls):
-        pass
-
-    def test(self):
-        awscli_config = AWSCliConfig(
-            path_config=path_aws_config,
-            path_credentials=path_aws_credentials,
-        )
+    def test(self, awscli_config: AWSCliConfig):
         config, credentials = awscli_config.read_config()
 
         awscli_config.ensure_profile_exists("default", config, credentials)
