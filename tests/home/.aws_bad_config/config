@@ -1,0 +1,28 @@
+[default]
+region = us-west-1
+output = json
+
+#--- begin of organization ---
+#--- p1 ---
+[profile p1]
+# comment for p1
+region = us-east-1
+output = json
+#--- p1 ---
+#
+#--- p2 ---
+[profile p2]
+region = us-east-2
+output = json
+role_arn = arn:aws:iam::111122223333:role/fake-role-name
+source_profile = p1 # comment for p2
+#--- p2 ---
+#
+#--- p3 ---
+[profile p3]
+region = us-east-3
+output = json
+#--- p3 ---
+#--- end of organization ---
+
+this-is-invalid
