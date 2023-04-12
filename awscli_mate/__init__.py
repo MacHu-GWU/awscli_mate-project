@@ -15,6 +15,7 @@ __github_username__ = "MacHu-GWU"
 
 try:
     from .api import (
+        strip_comment,
         AWSCliConfig,
         SectionTypeEnum,
         ConfigKeyEnum,
