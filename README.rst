@@ -84,6 +84,11 @@ Example:
 Note that this command also automatically set the MFA profile as default profile. If you don't want to set the ``your_profile_mfa`` as default profile automatically, you can just remove the ``--overwrite_default`` part.
 
 
+Use ``awscli_mate`` as a Python Library
+------------------------------------------------------------------------------
+See `example <./example.ipynb>`_.
+
+
 .. _install:
 
 Install

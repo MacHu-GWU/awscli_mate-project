@@ -15,6 +15,18 @@ Backlog
 **Miscellaneous**
 
 
+0.3.2 (2023-04-12)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Minor Improvements**
+
+- add return value to :meth:`awscli_mate.awscli.AWSCliConfig.set_profile_as_default`.
+- add return value to :meth:`awscli_mate.awscli.AWSCliConfig.mfa_auth`.
+
+**Miscellaneous**
+
+- add an example jupyter notebook
+
+
 0.3.1 (2023-04-06)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
