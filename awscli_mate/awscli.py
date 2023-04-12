@@ -16,6 +16,10 @@ from .paths import path_config, path_credentials
 from . import exc
 
 
+def strip_comment(s: str) -> str:
+    return s.split("#")[0]
+
+
 @dataclasses.dataclass
 class AWSCliConfig:
     """
@@ -130,14 +134,18 @@ class AWSCliConfig:
         self.copy_section_data(config, from_section_name, to_section_name)
         return True
 
-    def set_profile_as_default(self, profile: str):
+    def set_profile_as_default(
+        self,
+        profile: str,
+    ) -> T.Tuple[T.Optional[CommentedConfigParser], T.Optional[CommentedConfigParser]]:
         """
         Set the given profile as the default profile by replacing the section data.
         """
         if profile == "default":
-            return
+            return None, None
 
         config, credentials = self.read_config()
+
         self.ensure_profile_exists("default", config, credentials)
         self.ensure_profile_exists(profile, config, credentials)
 
@@ -160,13 +168,15 @@ class AWSCliConfig:
             with self.path_credentials.open("w") as f:
                 credentials.write(f)
 
+        return config, credentials
+
     def mfa_auth(
         self,
         profile: str,
         mfa_code: str,
         hours: int = 12,
         overwrite_default: bool = False,
-    ):  # pragma: no cover
+    ) -> T.Tuple[CommentedConfigParser, CommentedConfigParser]:  # pragma: no cover
         """
         Given a base ``${profile}``, do MFA authentication with ``mfa_code``,
         create / update the new aws profile ``${profile}_mfa`` using the returned
@@ -250,3 +260,5 @@ class AWSCliConfig:
 
         with atomic_write(f"{self.path_credentials}", overwrite=True) as f:
             credentials.write(f)
+
+        return config, credentials
