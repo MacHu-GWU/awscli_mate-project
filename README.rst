@@ -1,5 +1,5 @@
 
-.. image:: https://readthedocs.org/projects/awscli_mate/badge/?version=latest
+.. .. image:: https://readthedocs.org/projects/awscli_mate/badge/?version=latest
     :target: https://awscli_mate.readthedocs.io/index.html
     :alt: Documentation Status
 
@@ -24,13 +24,13 @@
 ------
 
 
-.. image:: https://img.shields.io/badge/Link-Document-blue.svg
+.. .. image:: https://img.shields.io/badge/Link-Document-blue.svg
     :target: https://awscli_mate.readthedocs.io/index.html
 
-.. image:: https://img.shields.io/badge/Link-API-blue.svg
+.. .. image:: https://img.shields.io/badge/Link-API-blue.svg
     :target: https://awscli_mate.readthedocs.io/py-modindex.html
 
-.. image:: https://img.shields.io/badge/Link-Source_Code-blue.svg
+.. .. image:: https://img.shields.io/badge/Link-Source_Code-blue.svg
     :target: https://awscli_mate.readthedocs.io/py-modindex.html
 
 .. image:: https://img.shields.io/badge/Link-Install-blue.svg
