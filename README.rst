@@ -89,6 +89,17 @@ Use ``awscli_mate`` as a Python Library
 See `example <./example.ipynb>`_.
 
 
+Use ``awscli_mate`` as a Interactive CLI
+------------------------------------------------------------------------------
+**Set named AWS Profile as default**
+
+.. image:: https://github.com/MacHu-GWU/awscli_mate-project/assets/6800411/c031a52a-2b4e-4dde-85f1-ab558aa1644f
+
+**Do MFA Authentication**
+
+.. image:: https://github.com/MacHu-GWU/awscli_mate-project/assets/6800411/5cc9ddef-18a5-4d76-942f-4be1e97601aa
+
+
 .. _install:
 
 Install

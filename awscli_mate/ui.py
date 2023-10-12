@@ -39,7 +39,7 @@ class MfaAuthItem(afwf_shell.Item):
             overwrite_default=True,
         )
         print(
-            f"aws cli MFA with: base profile = {profile!r}, new profile = '{profile}__mfa'"
+            f"aws cli MFA with: base profile = {profile!r}, new profile = '{profile}_mfa'"
         )
 
 
@@ -275,7 +275,6 @@ handler_mapper = {
 
 def handler(query: str, ui: afwf_shell.UI):
     parts = query.split(" ", 1)
-    # print(parts)
     if len(parts) == 1:
         return show_top_menu(query, ui)
     handler_name = parts[0]
