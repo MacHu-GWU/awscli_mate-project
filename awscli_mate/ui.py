@@ -67,7 +67,7 @@ def show_top_menu(query: str, ui: afwf_shell.UI):
     return [
         SetProfileItem(
             uid="uid-1",
-            title="✏️ Set an named profile as default",
+            title="📝 Set an named profile as default",
             subtitle="Hit 'Tab' to search profile",
             autocomplete=f"{MenuEnum.set_profile_as_default} ",
         ),
@@ -103,8 +103,8 @@ def set_profile_as_default_handler(query: str, ui: afwf_shell.UI):
     items = [
         SetProfileItem(
             uid=profile,
-            title=f"✏️ {profile} | {region}",
-            subtitle=f"set {profile!r} as the default profile.",
+            title=f"📝 {profile} | {region}",
+            subtitle=f"Hit 'Enter' to set {profile!r} as the default profile.",
             arg=profile,
             autocomplete=f"{MenuEnum.set_profile_as_default} {profile}",
         )
@@ -125,7 +125,7 @@ def _list_profile() -> T.List[MfaAuthItem]:
         MfaAuthItem(
             uid=profile,
             title=f"🔐 {profile} | {region}",
-            subtitle=f"use this {profile!r} base profile for MFA auth.",
+            subtitle=f"Use this {profile!r} base profile for MFA auth.",
             arg=profile,
             autocomplete=f"{MenuEnum.mfa_auth} {profile} ",
         )
@@ -167,7 +167,7 @@ def _entering_mfa_token(
         MfaAuthItem(
             uid="uid",
             title=f"🔐 MFA with {profile!r} + {token!r} ...",
-            subtitle="continue to enter your six digit MFA token ...",
+            subtitle="Continue to enter your six digit MFA token ...",
         )
     ]
 
@@ -194,7 +194,7 @@ def _run_mfa_auth(
         MfaAuthItem(
             uid="uid",
             title=f"🔐 MFA with {profile!r} + {token!r} ...",
-            subtitle="Hit 'Enter' to run it ...",
+            subtitle="Hit 'Enter' to do MFA authentication ...",
             variables={
                 "profile": profile,
                 "token": token,

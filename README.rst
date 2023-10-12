@@ -99,6 +99,22 @@ Use ``awscli_mate`` as a Interactive CLI
 
 .. image:: https://github.com/MacHu-GWU/awscli_mate-project/assets/6800411/5cc9ddef-18a5-4d76-942f-4be1e97601aa
 
+**Keyboard shortcuts**:
+
+- hit Ctrl + E or UP to move item selection up.
+- hit Ctrl + R to scroll item selection up.
+- hit Ctrl + D or DOWN to move item selection up.
+- hit Ctrl + F to scroll item selection up.
+- hit Ctrl + H or LEFT to move query input cursor to the left (this won't work on Windows).
+- hit Ctrl + L or RIGHT to move query input cursor to the right.
+- hit Ctrl + G to move query input cursor to the previous word.
+- hit Ctrl + K to move query input cursor to the next word.
+- hit Ctrl + X to clear the query input.
+- hit Tab to auto-complete.
+- hit BACKSPACE to delete query input backward.
+- hit DELETE to delete query input forward.
+- hit Enter to run it.
+
 
 .. _install:
 
