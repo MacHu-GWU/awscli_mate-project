@@ -187,6 +187,7 @@ if __name__ == "__main__":
         entry_points={
             "console_scripts": [
                 "awscli_mate=awscli_mate:main",
+                "awscli_mate_ui=awscli_mate.ui:main",
             ],
         },
     )

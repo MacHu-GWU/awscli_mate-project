@@ -2,12 +2,12 @@
 # for more info: https://coverage.readthedocs.io/en/latest/config.html
 [run]
 omit =
-    awscli_mate/_version.py
-    awscli_mate/cli.py
-    awscli_mate/pkg/*
     awscli_mate/docs/*
     awscli_mate/tests/*
-    awscli_mate/handlers/*
+    awscli_mate/vendor/*
+    awscli_mate/_version.py
+    awscli_mate/cli.py
+    awscli_mate/ui.py
 
 [report]
 # Regexes for lines to exclude from consideration

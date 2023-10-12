@@ -1,2 +1,5 @@
 commented-configparser>=1.0.0,<2.0.0
 atomicwrites>=1.0.0,<2.0.0
+afwf_shell>=0.0.7,<0.1.0
+fuzzywuzzy>=0.18.0,<1.0.0
+python-Levenshtein>=0.21.0,<1.0.0
