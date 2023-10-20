@@ -10,6 +10,7 @@ import zelfred.api as zf
 from .vendor.better_fuzzywuzzy import FuzzyMatcher
 from .vendor.os_platform import IS_WINDOWS
 from .awscli import AWSCliConfig
+from .url import get_sign_in_url, get_switch_role_url
 
 
 @dataclasses.dataclass
@@ -58,9 +59,37 @@ class MfaAuthItemFuzzyMatcher(FuzzyMatcher[MfaAuthItem]):
         return " ".join(item.arg.split("_"))
 
 
+@dataclasses.dataclass
+class SignInProfileItem(zf.Item):
+    def enter_handler(self, ui: zf.UI):
+        url = get_sign_in_url(profile=self.arg)
+        zf.open_url(url)
+        print(f"open {url} in default browser.")
+
+
+class SignInProfileItemFuzzyMatcher(FuzzyMatcher[SignInProfileItem]):
+    def get_name(self, item: SignInProfileItem) -> T.Optional[str]:
+        return " ".join(item.arg.split("_"))
+
+
+@dataclasses.dataclass
+class SwitchRoleProfileItem(zf.Item):
+    def enter_handler(self, ui: zf.UI):
+        url = get_switch_role_url(profile=self.arg)
+        zf.open_url(url)
+        print(f"open {url} in default browser.")
+
+
+class SwitchRoleItemFuzzyMatcher(FuzzyMatcher[SwitchRoleProfileItem]):
+    def get_name(self, item: SwitchRoleProfileItem) -> T.Optional[str]:
+        return " ".join(item.arg.split("_"))
+
+
 class MenuEnum:
     set_profile_as_default = "set_profile_as_default"
     mfa_auth = "mfa_auth"
+    sign_in = "sign_in"
+    switch_role = "switch_role"
 
 
 def show_top_menu(query: str, ui: zf.UI):
@@ -76,6 +105,18 @@ def show_top_menu(query: str, ui: zf.UI):
             subtitle="Hit 'Tab' to select a base profile",
             uid="uid-2",
             autocomplete=f"{MenuEnum.mfa_auth} ",
+        ),
+        SetProfileItem(
+            title="🌐 Sign in to AWS Console",
+            subtitle="Hit 'Tab' to select a profile to sign in",
+            uid="uid-3",
+            autocomplete=f"{MenuEnum.sign_in} ",
+        ),
+        SetProfileItem(
+            title="🔄 Switch Role in to AWS Console",
+            subtitle="Hit 'Tab' to select a profile to switch to",
+            uid="uid-4",
+            autocomplete=f"{MenuEnum.switch_role} ",
         ),
     ]
 
@@ -204,7 +245,8 @@ def _run_mfa_auth(
 
 
 def mfa_auth_handler(
-    query: str, ui: zf.UI
+    query: str,
+    ui: zf.UI,
 ) -> T.List[T.Union[MfaAuthItem, MfaHintItem]]:
     """
 
@@ -269,9 +311,65 @@ def mfa_auth_handler(
         raise NotImplementedError
 
 
+def sign_in_handler(
+    query: str,
+    ui: zf.UI,
+) -> T.List[SignInProfileItem]:
+    """ """
+    q = zf.Query.from_str(query)
+    pairs = extract_profile_and_region_pairs()
+    items = [
+        SignInProfileItem(
+            title=f"📝 {profile} | {region}",
+            subtitle=f"Hit 'Enter' to sign in using {profile!r} profile.",
+            uid=profile,
+            arg=profile,
+            autocomplete=f"{MenuEnum.sign_in} {profile}",
+        )
+        for profile, region in pairs
+    ]
+    # example:
+    # - ""
+    # - "    "
+    if len(q.trimmed_parts) == 0:
+        return items
+    else:
+        matcher = SignInProfileItemFuzzyMatcher.from_items(items)
+        return matcher.match(" ".join(q.trimmed_parts), threshold=0, limit=99)
+
+
+def switch_role_handler(
+    query: str,
+    ui: zf.UI,
+) -> T.List[SwitchRoleProfileItem]:
+    """ """
+    q = zf.Query.from_str(query)
+    pairs = extract_profile_and_region_pairs()
+    items = [
+        SwitchRoleProfileItem(
+            title=f"📝 {profile} | {region}",
+            subtitle=f"Hit 'Enter' to switch to IAM role defined in {profile!r}.",
+            uid=profile,
+            arg=profile,
+            autocomplete=f"{MenuEnum.switch_role} {profile}",
+        )
+        for profile, region in pairs
+    ]
+    # example:
+    # - ""
+    # - "    "
+    if len(q.trimmed_parts) == 0:
+        return items
+    else:
+        matcher = SwitchRoleItemFuzzyMatcher.from_items(items)
+        return matcher.match(" ".join(q.trimmed_parts), threshold=0, limit=99)
+
+
 handler_mapper = {
-    "set_profile_as_default": set_profile_as_default_handler,
-    "mfa_auth": mfa_auth_handler,
+    MenuEnum.set_profile_as_default: set_profile_as_default_handler,
+    MenuEnum.mfa_auth: mfa_auth_handler,
+    MenuEnum.sign_in: sign_in_handler,
+    MenuEnum.switch_role: switch_role_handler,
 }
 
 

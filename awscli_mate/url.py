@@ -42,6 +42,18 @@ def get_switch_role_url(profile: str):
 
     See AWS official doc about switch role url at
     https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-console.html
+
+    In your ``${HOME}/.aws/config``, you need to have a ``my_acc_2_assumed_role_profile``
+    like this::
+
+        [profile my_acc_1_profile]
+        region = us-east-1
+        output = json
+
+        [profile my_acc_2_assumed_role_profile]
+        region = us-east-1
+        role_arn = arn:aws:iam::111122223333:role/admin-role
+        source_profile = my_acc_1_profile
     """
     import boto3
 

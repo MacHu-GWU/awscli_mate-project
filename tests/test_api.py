@@ -6,6 +6,7 @@ import pytest
 def test():
     from awscli_mate import api
 
+    _ = api.__version__
     _ = api.AWSCliConfig
     _ = api.SectionTypeEnum
     _ = api.ConfigKeyEnum
