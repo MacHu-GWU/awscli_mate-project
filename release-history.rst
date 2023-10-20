@@ -15,6 +15,39 @@ Backlog
 **Miscellaneous**
 
 
+1.0.1 (2023-10-20)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Features and Improvements**
+
+- First API stable release.
+- Release ``1.X.Y``.
+- CLI features:
+    - cli command ``awscli_mate``
+    - set a profile as default
+    - do MFA authentication using a base profile
+- UI:
+    - cli command ``awscli_mate_ui``
+    - set a profile as default
+    - do MFA authentication using a base profile
+    - open sign in url in browser using a AWS profile
+    - open switch role url in browser using a AWS profile
+- Public API:
+    - The import pattern now is ``import awscli_mate.api as awscli_mate``.
+    - ``awscli_mate.api.__version__``
+    - ``awscli_mate.api.strip_comment``
+    - ``awscli_mate.api.AWSCliConfig``
+    - ``awscli_mate.api.SectionTypeEnum``
+    - ``awscli_mate.api.ConfigKeyEnum``
+    - ``awscli_mate.api.CredentialKeyEnum``
+    - ``awscli_mate.api.get_account_alias``
+    - ``awscli_mate.api.get_sign_in_url``
+    - ``awscli_mate.api.get_switch_role_url``
+
+**Miscellaneous**
+
+- Start using the ``zelfred`` package for the interactive UI.
+
+
 0.4.1 (2023-10-12)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
