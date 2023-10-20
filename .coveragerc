@@ -8,6 +8,7 @@ omit =
     awscli_mate/_version.py
     awscli_mate/cli.py
     awscli_mate/ui.py
+    awscli_mate/url.py
 
 [report]
 # Regexes for lines to exclude from consideration

@@ -1,4 +1,4 @@
 # This requirements file should only include dependencies for testing
 pytest                                  # test framework
 pytest-cov                              # coverage test
-pathlib_mate
+pathlib_mate                            # objective path manipulation

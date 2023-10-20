@@ -5,7 +5,7 @@ import subprocess
 import dataclasses
 
 import fire
-import afwf_shell.api as afwf_shell
+import zelfred.api as zf
 
 from .vendor.better_fuzzywuzzy import FuzzyMatcher
 from .vendor.os_platform import IS_WINDOWS
@@ -13,8 +13,8 @@ from .awscli import AWSCliConfig
 
 
 @dataclasses.dataclass
-class SetProfileItem(afwf_shell.Item):
-    def enter_handler(self, ui: afwf_shell.UI):
+class SetProfileItem(zf.Item):
+    def enter_handler(self, ui: zf.UI):
         awscli_config = AWSCliConfig()
         awscli_config.set_profile_as_default(profile=self.arg)
         print(f"set {self.arg!r} as the default profile.")
@@ -26,8 +26,8 @@ class SetProfileItemFuzzyMatcher(FuzzyMatcher[SetProfileItem]):
 
 
 @dataclasses.dataclass
-class MfaAuthItem(afwf_shell.Item):
-    def enter_handler(self, ui: afwf_shell.UI):
+class MfaAuthItem(zf.Item):
+    def enter_handler(self, ui: zf.UI):
         awscli_config = AWSCliConfig()
         if not self.variables:
             return
@@ -44,8 +44,8 @@ class MfaAuthItem(afwf_shell.Item):
 
 
 @dataclasses.dataclass
-class MfaHintItem(afwf_shell.Item):
-    def enter_handler(self, ui: afwf_shell.UI):
+class MfaHintItem(zf.Item):
+    def enter_handler(self, ui: zf.UI):
         url = "https://repost.aws/knowledge-center/authenticate-mfa-cli"
         if IS_WINDOWS:
             subprocess.run(["start", url])
@@ -63,18 +63,18 @@ class MenuEnum:
     mfa_auth = "mfa_auth"
 
 
-def show_top_menu(query: str, ui: afwf_shell.UI):
+def show_top_menu(query: str, ui: zf.UI):
     return [
         SetProfileItem(
-            uid="uid-1",
             title="📝 Set an named profile as default",
             subtitle="Hit 'Tab' to search profile",
+            uid="uid-1",
             autocomplete=f"{MenuEnum.set_profile_as_default} ",
         ),
         SetProfileItem(
-            uid="uid-2",
             title="🔐 Do CLI MFA Authentication",
             subtitle="Hit 'Tab' to select a base profile",
+            uid="uid-2",
             autocomplete=f"{MenuEnum.mfa_auth} ",
         ),
     ]
@@ -97,14 +97,14 @@ def extract_profile_and_region_pairs() -> T.List[T.Tuple[str, str]]:
     return pairs
 
 
-def set_profile_as_default_handler(query: str, ui: afwf_shell.UI):
-    q = afwf_shell.Query.from_str(query)
+def set_profile_as_default_handler(query: str, ui: zf.UI):
+    q = zf.Query.from_str(query)
     pairs = extract_profile_and_region_pairs()
     items = [
         SetProfileItem(
-            uid=profile,
             title=f"📝 {profile} | {region}",
             subtitle=f"Hit 'Enter' to set {profile!r} as the default profile.",
+            uid=profile,
             arg=profile,
             autocomplete=f"{MenuEnum.set_profile_as_default} {profile}",
         )
@@ -123,9 +123,9 @@ def set_profile_as_default_handler(query: str, ui: afwf_shell.UI):
 def _list_profile() -> T.List[MfaAuthItem]:
     return [
         MfaAuthItem(
-            uid=profile,
             title=f"🔐 {profile} | {region}",
-            subtitle=f"Use this {profile!r} base profile for MFA auth.",
+            subtitle=f"Hit 'Tab' to use this base profile for MFA auth.",
+            uid=profile,
             arg=profile,
             autocomplete=f"{MenuEnum.mfa_auth} {profile} ",
         )
@@ -152,9 +152,9 @@ def _ask_for_mfa_token(
     """
     return [
         MfaHintItem(
-            uid="uid",
             title=f"🔐 MFA with {profile!r}, enter your six digit MFA token ...",
             subtitle="Hit 'Enter' to read the official doc",
+            uid="uid",
         )
     ]
 
@@ -165,9 +165,9 @@ def _entering_mfa_token(
 ) -> T.List[MfaAuthItem]:
     return [
         MfaAuthItem(
-            uid="uid",
             title=f"🔐 MFA with {profile!r} + {token!r} ...",
             subtitle="Continue to enter your six digit MFA token ...",
+            uid="uid",
         )
     ]
 
@@ -178,9 +178,9 @@ def _entered_invalid_token(
 ):
     return [
         MfaAuthItem(
-            uid="uid",
             title=f"🔐 {token!r} is NOT a valid six digit MFA token!",
             subtitle="Hit 'Tab' to re-enter your six digit MFA token",
+            uid="uid",
             autocomplete=f"{MenuEnum.mfa_auth} {profile} ",
         )
     ]
@@ -192,9 +192,9 @@ def _run_mfa_auth(
 ):
     return [
         MfaAuthItem(
-            uid="uid",
             title=f"🔐 MFA with {profile!r} + {token!r} ...",
             subtitle="Hit 'Enter' to do MFA authentication ...",
+            uid="uid",
             variables={
                 "profile": profile,
                 "token": token,
@@ -203,12 +203,14 @@ def _run_mfa_auth(
     ]
 
 
-def mfa_auth_handler(query: str, ui: afwf_shell.UI) -> T.List[MfaAuthItem]:
+def mfa_auth_handler(
+    query: str, ui: zf.UI
+) -> T.List[T.Union[MfaAuthItem, MfaHintItem]]:
     """
 
     :param query: the query string. example: "my_profile_name my_mfa_token"
     """
-    q = afwf_shell.Query.from_str(query)
+    q = zf.Query.from_str(query)
     # example:
     # - ""
     # - "    "
@@ -273,7 +275,7 @@ handler_mapper = {
 }
 
 
-def handler(query: str, ui: afwf_shell.UI):
+def handler(query: str, ui: zf.UI):
     parts = query.split(" ", 1)
     if len(parts) == 1:
         return show_top_menu(query, ui)
@@ -283,7 +285,9 @@ def handler(query: str, ui: afwf_shell.UI):
 
 
 def run_ui():
-    ui = afwf_shell.UI(handler=handler, capture_error=False)
+    zf.debugger.reset()
+    zf.debugger.enable()
+    ui = zf.UI(handler=handler, capture_error=False)
     ui.run()
 
 

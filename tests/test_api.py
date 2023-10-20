@@ -4,14 +4,17 @@ import pytest
 
 
 def test():
-    import awscli_mate
+    from awscli_mate import api
 
-    _ = awscli_mate.AWSCliConfig
-    _ = awscli_mate.SectionTypeEnum
-    _ = awscli_mate.ConfigKeyEnum
-    _ = awscli_mate.CredentialKeyEnum
+    _ = api.AWSCliConfig
+    _ = api.SectionTypeEnum
+    _ = api.ConfigKeyEnum
+    _ = api.CredentialKeyEnum
+    _ = api.get_account_alias
+    _ = api.get_sign_in_url
+    _ = api.get_switch_role_url
 
-    awscli_config = awscli_mate.AWSCliConfig()
+    awscli_config = api.AWSCliConfig()
 
     _ = awscli_config.set_profile_as_default
     _ = awscli_config.mfa_auth
