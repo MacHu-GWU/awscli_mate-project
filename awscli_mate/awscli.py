@@ -31,7 +31,7 @@ class AWSCliConfig:
 
     def read_config(
         self,
-    ) -> T.Tuple[CommentedConfigParser, CommentedConfigParser,]:
+    ) -> T.Tuple[CommentedConfigParser, CommentedConfigParser]:
         """
         parse ~/.aws/config and ~/.aws/credentials file, return two config objects.
         """

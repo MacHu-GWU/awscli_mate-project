@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
+
 import pytest
-from pathlib_mate import Path
+
 from awscli_mate.awscli import AWSCliConfig
 from awscli_mate import exc
+
 
 def test_awscli_config_empty(
     awscli_config_empty: AWSCliConfig,
 ):
     with pytest.raises(exc.AWSConfigFileNotExistError):
         awscli_config_empty.set_profile_as_default("p1")
+
 
 def test_awscli_config_no_config(
     awscli_config_no_config: AWSCliConfig,
@@ -50,7 +53,6 @@ def test_awscli_config_profile_not_exist_in_credentials(
 ):
     with pytest.raises(exc.ProfileNotFoundError):
         awscli_config_profile_not_exist_in_credentials.set_profile_as_default("p1")
-
 
 
 if __name__ == "__main__":

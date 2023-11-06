@@ -13,12 +13,45 @@ from .awscli import AWSCliConfig
 from .url import get_sign_in_url, get_switch_role_url
 
 
+def display_profile_info(profile: str):
+    print(f"try to get detailed info about the profile: {profile!r} ...")
+    try:
+        import boto3
+        import botocore.exceptions
+
+        boto_ses = boto3.session.Session(profile_name=profile)
+
+        try:
+            res = boto_ses.client("sts").get_caller_identity()
+            aws_account_id = res["Account"]
+            print(f"AWS Account ID = {aws_account_id}")
+        except botocore.exceptions.ClientError:
+            pass
+
+        try:
+            res = boto_ses.client("iam").list_account_aliases()
+            aliases = res.get("AccountAliases", [])
+            if aliases:
+                print(f"AWS Account Alias = {aliases[0]}")
+        except botocore.exceptions.ClientError:
+            pass
+
+        try:
+            print(f"AWS Region = {boto_ses.region_name}")
+        except:
+            pass
+
+    except ImportError:
+        print("  you don't have boto3 installed.")
+
+
 @dataclasses.dataclass
 class SetProfileItem(zf.Item):
     def enter_handler(self, ui: zf.UI):
         awscli_config = AWSCliConfig()
         awscli_config.set_profile_as_default(profile=self.arg)
         print(f"set {self.arg!r} as the default profile.")
+        display_profile_info(profile=self.arg)
 
 
 class SetProfileItemFuzzyMatcher(FuzzyMatcher[SetProfileItem]):
@@ -42,6 +75,7 @@ class MfaAuthItem(zf.Item):
         print(
             f"aws cli MFA with: base profile = {profile!r}, new profile = '{profile}_mfa'"
         )
+        display_profile_info(profile=f"{profile}_mfa")
 
 
 @dataclasses.dataclass
