@@ -86,7 +86,7 @@ Note that this command also automatically set the MFA profile as default profile
 
 Use ``awscli_mate`` as a Python Library
 ------------------------------------------------------------------------------
-See `example <./example.ipynb>`_.
+See `example <https://github.com/MacHu-GWU/awscli_mate-project/blob/main/example.ipynb>`_.
 
 
 Use ``awscli_mate`` as a Interactive CLI
