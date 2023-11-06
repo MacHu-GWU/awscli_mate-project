@@ -15,6 +15,14 @@ Backlog
 **Miscellaneous**
 
 
+1.0.2 (2023-11-06)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Minor Improvements**
+
+- Also display the aws account, alias, region information after "set default profile".
+- Also display the aws account, alias, region information after "mfa auth".
+
+
 1.0.1 (2023-10-20)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
