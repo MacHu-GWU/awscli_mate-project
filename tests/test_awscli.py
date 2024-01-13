@@ -1,18 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import shutil
-from pathlib import Path
-
 import pytest
 
-from awscli_mate.tests.paths import dir_tests
 from awscli_mate.exc import ProfileNotFoundError
 from awscli_mate.awscli import AWSCliConfig
-
-dir_aws: Path = dir_tests.joinpath(".aws")
-dir_aws_tmp: Path = dir_tests.joinpath(".aws_tmp")
-path_aws_config: Path = dir_aws_tmp.joinpath("config")
-path_aws_credentials: Path = dir_aws_tmp.joinpath("credentials")
 
 
 class TestCliConfig:
@@ -27,6 +18,9 @@ class TestCliConfig:
         for profile in ["invalid", "profile p1"]:
             with pytest.raises(ProfileNotFoundError):
                 awscli_config.ensure_profile_exists(profile, config, credentials)
+
+        pairs = awscli_config.extract_profile_and_region_pairs()
+        assert len(pairs) == 3
 
         # ------------------------------------------------------------------------------
         # copy section data

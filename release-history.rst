@@ -15,6 +15,21 @@ Backlog
 **Miscellaneous**
 
 
+1.1.1 (2024-01-12)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Features and Improvements**
+
+- Add the following public API:
+    - ``awscli_mate.api.T_PROFILE_REGION_PAIR``
+    - ``awscli_mate.api.ProfileRegionPairFuzzyMatcher``
+    - ``awscli_mate.api.sort_profile_region_pairs``
+    - ``awscli_mate.api.get_sorted_profile_region_pairs``
+
+**Minor Improvements**
+
+- Refactor the UI module to make it more succinct and readable.
+
+
 1.0.2 (2023-11-06)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Minor Improvements**

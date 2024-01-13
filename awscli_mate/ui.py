@@ -6,10 +6,10 @@ import dataclasses
 
 import fire
 import zelfred.api as zf
-
-from .vendor.better_fuzzywuzzy import FuzzyMatcher
 from .vendor.os_platform import IS_WINDOWS
+
 from .awscli import AWSCliConfig
+from .search import get_sorted_profile_region_pairs
 from .url import get_sign_in_url, get_switch_role_url
 
 
@@ -46,21 +46,40 @@ def display_profile_info(profile: str):
 
 
 @dataclasses.dataclass
-class SetProfileItem(zf.Item):
+class ProfileItem(zf.Item):
+    @classmethod
+    def from_profile_region(cls, profile: str, region: str):
+        raise NotImplementedError
+
+    @classmethod
+    def from_query(cls, query: str):
+        sorted_pairs = get_sorted_profile_region_pairs(query)
+        return [
+            cls.from_profile_region(profile, region) for profile, region in sorted_pairs
+        ]
+
+
+@dataclasses.dataclass
+class SetProfileItem(ProfileItem):
     def enter_handler(self, ui: zf.UI):
         awscli_config = AWSCliConfig()
         awscli_config.set_profile_as_default(profile=self.arg)
         print(f"set {self.arg!r} as the default profile.")
         display_profile_info(profile=self.arg)
 
-
-class SetProfileItemFuzzyMatcher(FuzzyMatcher[SetProfileItem]):
-    def get_name(self, item: SetProfileItem) -> T.Optional[str]:
-        return " ".join(item.arg.split("_"))
+    @classmethod
+    def from_profile_region(cls, profile: str, region: str):
+        return cls(
+            title=f"📝 {profile} | {region}",
+            subtitle=f"Hit 'Enter' to set {profile!r} as the default profile.",
+            uid=profile,
+            arg=profile,
+            autocomplete=f"{MenuEnum.set_profile_as_default} {profile}",
+        )
 
 
 @dataclasses.dataclass
-class MfaAuthItem(zf.Item):
+class MfaAuthItem(ProfileItem):
     def enter_handler(self, ui: zf.UI):
         awscli_config = AWSCliConfig()
         if not self.variables:
@@ -77,6 +96,16 @@ class MfaAuthItem(zf.Item):
         )
         display_profile_info(profile=f"{profile}_mfa")
 
+    @classmethod
+    def from_profile_region(cls, profile: str, region: str):
+        return cls(
+            title=f"🔐 {profile} | {region}",
+            subtitle=f"Hit 'Tab' to use this base profile for MFA auth.",
+            uid=profile,
+            arg=profile,
+            autocomplete=f"{MenuEnum.mfa_auth} {profile} ",
+        )
+
 
 @dataclasses.dataclass
 class MfaHintItem(zf.Item):
@@ -88,35 +117,40 @@ class MfaHintItem(zf.Item):
             subprocess.run(["open", url])
 
 
-class MfaAuthItemFuzzyMatcher(FuzzyMatcher[MfaAuthItem]):
-    def get_name(self, item: MfaAuthItem) -> T.Optional[str]:
-        return " ".join(item.arg.split("_"))
-
-
 @dataclasses.dataclass
-class SignInProfileItem(zf.Item):
+class SignInProfileItem(ProfileItem):
     def enter_handler(self, ui: zf.UI):
         url = get_sign_in_url(profile=self.arg)
         zf.open_url(url)
         print(f"open {url} in default browser.")
 
-
-class SignInProfileItemFuzzyMatcher(FuzzyMatcher[SignInProfileItem]):
-    def get_name(self, item: SignInProfileItem) -> T.Optional[str]:
-        return " ".join(item.arg.split("_"))
+    @classmethod
+    def from_profile_region(cls, profile: str, region: str):
+        return cls(
+            title=f"📝 {profile} | {region}",
+            subtitle=f"Hit 'Enter' to sign in using {profile!r} profile.",
+            uid=profile,
+            arg=profile,
+            autocomplete=f"{MenuEnum.sign_in} {profile}",
+        )
 
 
 @dataclasses.dataclass
-class SwitchRoleProfileItem(zf.Item):
+class SwitchRoleProfileItem(ProfileItem):
     def enter_handler(self, ui: zf.UI):
         url = get_switch_role_url(profile=self.arg)
         zf.open_url(url)
         print(f"open {url} in default browser.")
 
-
-class SwitchRoleItemFuzzyMatcher(FuzzyMatcher[SwitchRoleProfileItem]):
-    def get_name(self, item: SwitchRoleProfileItem) -> T.Optional[str]:
-        return " ".join(item.arg.split("_"))
+    @classmethod
+    def from_profile_region(cls, profile: str, region: str):
+        return cls(
+            title=f"📝 {profile} | {region}",
+            subtitle=f"Hit 'Enter' to switch to IAM role defined in {profile!r}.",
+            uid=profile,
+            arg=profile,
+            autocomplete=f"{MenuEnum.switch_role} {profile}",
+        )
 
 
 class MenuEnum:
@@ -155,68 +189,16 @@ def show_top_menu(query: str, ui: zf.UI):
     ]
 
 
-def extract_profile_and_region_pairs() -> T.List[T.Tuple[str, str]]:
-    awscli_config = AWSCliConfig()
-    config, credentials = awscli_config.read_config()
-    pairs = list()
-    for section_name, section in config.items():
-        # extract the profile name
-        # we don't want the configparser's DEFAULT section
-        # and also we don't want to use the default profile as the base profile
-        if not section_name.startswith("profile "):
-            continue
-        profile = section_name[8:]
-        # extract the region name
-        region = section.get("region", "unknown-region")
-        pairs.append((profile, region))
-    return pairs
-
-
 def set_profile_as_default_handler(query: str, ui: zf.UI):
     q = zf.Query.from_str(query)
-    pairs = extract_profile_and_region_pairs()
-    items = [
-        SetProfileItem(
-            title=f"📝 {profile} | {region}",
-            subtitle=f"Hit 'Enter' to set {profile!r} as the default profile.",
-            uid=profile,
-            arg=profile,
-            autocomplete=f"{MenuEnum.set_profile_as_default} {profile}",
-        )
-        for profile, region in pairs
-    ]
+    sorted_pairs = get_sorted_profile_region_pairs(query=" ".join(q.trimmed_parts))
     # example:
     # - ""
     # - "    "
-    if len(q.trimmed_parts) == 0:
-        return items
-    else:
-        matcher = SetProfileItemFuzzyMatcher.from_items(items)
-        return matcher.match(" ".join(q.trimmed_parts), threshold=0, limit=99)
-
-
-def _list_profile() -> T.List[MfaAuthItem]:
     return [
-        MfaAuthItem(
-            title=f"🔐 {profile} | {region}",
-            subtitle=f"Hit 'Tab' to use this base profile for MFA auth.",
-            uid=profile,
-            arg=profile,
-            autocomplete=f"{MenuEnum.mfa_auth} {profile} ",
-        )
-        for profile, region in extract_profile_and_region_pairs()
+        SetProfileItem.from_profile_region(profile, region)
+        for profile, region in sorted_pairs
     ]
-
-
-def _select_profile(
-    query: str,
-    items: T.List[MfaAuthItem],
-) -> T.List[MfaAuthItem]:
-    """
-    :param query: the query string. example: "my_profile_name"
-    """
-    matcher = MfaAuthItemFuzzyMatcher.from_items(items)
-    return matcher.match(query, threshold=0, limit=99)
 
 
 def _ask_for_mfa_token(
@@ -291,7 +273,7 @@ def mfa_auth_handler(
     # - ""
     # - "    "
     if len(q.trimmed_parts) == 0:
-        return _list_profile()
+        return MfaAuthItem.from_query(query="")
     elif q.trimmed_parts[0].startswith("?"):
         # sf.items.append(get_help_item())
         return []
@@ -299,15 +281,15 @@ def mfa_auth_handler(
     # - "profile_name"
     # - "profile_substr"
     elif len(q.trimmed_parts) == 1:
-        items = _list_profile()
+        items = MfaAuthItem.from_query(query="")
         profiles = [item.arg for item in items]
         if q.trimmed_parts[0] in profiles:
             return _ask_for_mfa_token(profile=q.trimmed_parts[0])
         else:
-            return _select_profile(query=" ".join(q.trimmed_parts), items=items)
+            return MfaAuthItem.from_query(query=" ".join(q.trimmed_parts))
     elif len(q.trimmed_parts) == 2:
         profile, token = q.trimmed_parts
-        items = _list_profile()
+        items = MfaAuthItem.from_query(query="")
         profiles = [item.arg for item in items]
         # see below
         if profile in profiles:
@@ -329,18 +311,18 @@ def mfa_auth_handler(
                 return _entered_invalid_token(profile, token)
         # - "alice bob"
         else:
-            return _select_profile(query=" ".join(q.trimmed_parts), items=items)
+            return MfaAuthItem.from_query(query=" ".join(q.trimmed_parts))
     # example:
     # - "profile sub str"
     # - "profile sub str 123456"
     elif len(q.trimmed_parts) >= 3:
-        items = _list_profile()
+        items = MfaAuthItem.from_query(query="")
         profiles = [item.arg for item in items]
         profile = q.trimmed_parts[0]
         if profile in profiles:
             return _entered_invalid_token(profile, token=" ".join(q.trimmed_parts[1:]))
         else:
-            return _select_profile(query=" ".join(q.trimmed_parts), items=items)
+            return MfaAuthItem.from_query(query=" ".join(q.trimmed_parts))
     else:  # pragma: no cover
         raise NotImplementedError
 
@@ -351,25 +333,10 @@ def sign_in_handler(
 ) -> T.List[SignInProfileItem]:
     """ """
     q = zf.Query.from_str(query)
-    pairs = extract_profile_and_region_pairs()
-    items = [
-        SignInProfileItem(
-            title=f"📝 {profile} | {region}",
-            subtitle=f"Hit 'Enter' to sign in using {profile!r} profile.",
-            uid=profile,
-            arg=profile,
-            autocomplete=f"{MenuEnum.sign_in} {profile}",
-        )
-        for profile, region in pairs
-    ]
     # example:
     # - ""
     # - "    "
-    if len(q.trimmed_parts) == 0:
-        return items
-    else:
-        matcher = SignInProfileItemFuzzyMatcher.from_items(items)
-        return matcher.match(" ".join(q.trimmed_parts), threshold=0, limit=99)
+    return SignInProfileItem.from_query(query=" ".join(q.trimmed_parts))
 
 
 def switch_role_handler(
@@ -378,25 +345,10 @@ def switch_role_handler(
 ) -> T.List[SwitchRoleProfileItem]:
     """ """
     q = zf.Query.from_str(query)
-    pairs = extract_profile_and_region_pairs()
-    items = [
-        SwitchRoleProfileItem(
-            title=f"📝 {profile} | {region}",
-            subtitle=f"Hit 'Enter' to switch to IAM role defined in {profile!r}.",
-            uid=profile,
-            arg=profile,
-            autocomplete=f"{MenuEnum.switch_role} {profile}",
-        )
-        for profile, region in pairs
-    ]
     # example:
     # - ""
     # - "    "
-    if len(q.trimmed_parts) == 0:
-        return items
-    else:
-        matcher = SwitchRoleItemFuzzyMatcher.from_items(items)
-        return matcher.match(" ".join(q.trimmed_parts), threshold=0, limit=99)
+    return SwitchRoleProfileItem.from_query(query=" ".join(q.trimmed_parts))
 
 
 handler_mapper = {

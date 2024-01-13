@@ -20,6 +20,9 @@ def strip_comment(s: str) -> str:
     return s.split("#")[0]
 
 
+T_PROFILE_REGION_PAIR = T.Tuple[str, str]
+
+
 @dataclasses.dataclass
 class AWSCliConfig:
     """
@@ -55,6 +58,32 @@ class AWSCliConfig:
             raise exc.MalformedConfigFileError(str(e))
 
         return config, credentials
+
+    def extract_profile_and_region_pairs(self) -> T.List[T_PROFILE_REGION_PAIR]:
+        """
+        Extract profile and region pairs from the config file, except the
+        default profile.
+
+        .. note::
+
+            note that the credentials file is not used here, config file
+            should be your top priority.
+
+        :return: a list of (profile, region) pairs
+        """
+        config, _ = self.read_config()
+        pairs = list()
+        for section_name, section in config.items():
+            # extract the profile name
+            # we don't want the configparser's DEFAULT section
+            # and also we don't want to use the default profile as the base profile
+            if not section_name.startswith("profile "):
+                continue
+            profile = section_name[8:]
+            # extract the region name
+            region = section.get("region", "unknown-region")
+            pairs.append((profile, region))
+        return pairs
 
     def ensure_profile_exists(
         self,

@@ -3,6 +3,7 @@
 import pytest
 import shutil
 from pathlib_mate import Path
+
 from awscli_mate.awscli import AWSCliConfig
 
 dir_here = Path.dir_here(__file__)

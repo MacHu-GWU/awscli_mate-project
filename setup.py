@@ -125,6 +125,7 @@ if __name__ == "__main__":
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3 :: Only",
     ]
     """
@@ -183,6 +184,7 @@ if __name__ == "__main__":
         platforms=PLATFORMS,
         license=LICENSE,
         install_requires=REQUIRES,
+        python_requires=">=3.7",
         extras_require=EXTRA_REQUIRE,
         entry_points={
             "console_scripts": [
@@ -246,6 +248,8 @@ Frequent used classifiers List::
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3 :: Only",
     ]
 """
