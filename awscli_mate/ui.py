@@ -13,6 +13,22 @@ from .search import get_sorted_profile_region_pairs
 from .url import get_sign_in_url, get_switch_role_url
 
 
+class UI(zf.UI):
+    def format_highlight(self, s: str) -> str:
+        return f"{self.terminal.cyan}{s}{self.terminal.normal}"
+
+    def format_shortcut(self, s: str) -> str:
+        return f"{self.terminal.magenta}{s}{self.terminal.normal}"
+
+    @property
+    def Tab(self) -> str:
+        return self.format_shortcut("Tab")
+
+    @property
+    def Enter(self) -> str:
+        return self.format_shortcut("Enter")
+
+
 def display_profile_info(profile: str):
     print(f"try to get detailed info about the profile: {profile!r} ...")
     try:
@@ -48,30 +64,32 @@ def display_profile_info(profile: str):
 @dataclasses.dataclass
 class ProfileItem(zf.Item):
     @classmethod
-    def from_profile_region(cls, profile: str, region: str):
+    def from_profile_region(cls, ui: UI, profile: str, region: str):
         raise NotImplementedError
 
     @classmethod
-    def from_query(cls, query: str):
+    def from_query(cls, ui: UI, query: str):
         sorted_pairs = get_sorted_profile_region_pairs(query)
         return [
-            cls.from_profile_region(profile, region) for profile, region in sorted_pairs
+            cls.from_profile_region(ui, profile, region)
+            for profile, region in sorted_pairs
         ]
 
 
 @dataclasses.dataclass
 class SetProfileItem(ProfileItem):
-    def enter_handler(self, ui: zf.UI):
+    def enter_handler(self, ui: UI):
         awscli_config = AWSCliConfig()
         awscli_config.set_profile_as_default(profile=self.arg)
         print(f"set {self.arg!r} as the default profile.")
         display_profile_info(profile=self.arg)
 
     @classmethod
-    def from_profile_region(cls, profile: str, region: str):
+    def from_profile_region(cls, ui: UI, profile: str, region: str):
+        "{term.cyan}{text}{term.normal}"
         return cls(
-            title=f"📝 {profile} | {region}",
-            subtitle=f"Hit 'Enter' to set {profile!r} as the default profile.",
+            title=f"📝 {ui.format_highlight(profile)} | {region}",
+            subtitle=f"Hit '{ui.Enter}' to set {profile!r} as the default profile.",
             uid=profile,
             arg=profile,
             autocomplete=f"{MenuEnum.set_profile_as_default} {profile}",
@@ -80,7 +98,7 @@ class SetProfileItem(ProfileItem):
 
 @dataclasses.dataclass
 class MfaAuthItem(ProfileItem):
-    def enter_handler(self, ui: zf.UI):
+    def enter_handler(self, ui: UI):
         awscli_config = AWSCliConfig()
         if not self.variables:
             return
@@ -97,10 +115,10 @@ class MfaAuthItem(ProfileItem):
         display_profile_info(profile=f"{profile}_mfa")
 
     @classmethod
-    def from_profile_region(cls, profile: str, region: str):
+    def from_profile_region(cls, ui: UI, profile: str, region: str):
         return cls(
-            title=f"🔐 {profile} | {region}",
-            subtitle=f"Hit 'Tab' to use this base profile for MFA auth.",
+            title=f"🔐 {ui.format_highlight(profile)} | {region}",
+            subtitle=f"Hit '{ui.Tab}' to use this base profile for MFA auth.",
             uid=profile,
             arg=profile,
             autocomplete=f"{MenuEnum.mfa_auth} {profile} ",
@@ -109,7 +127,7 @@ class MfaAuthItem(ProfileItem):
 
 @dataclasses.dataclass
 class MfaHintItem(zf.Item):
-    def enter_handler(self, ui: zf.UI):
+    def enter_handler(self, ui: UI):
         url = "https://repost.aws/knowledge-center/authenticate-mfa-cli"
         if IS_WINDOWS:
             subprocess.run(["start", url])
@@ -119,16 +137,16 @@ class MfaHintItem(zf.Item):
 
 @dataclasses.dataclass
 class SignInProfileItem(ProfileItem):
-    def enter_handler(self, ui: zf.UI):
+    def enter_handler(self, ui: UI):
         url = get_sign_in_url(profile=self.arg)
         zf.open_url(url)
         print(f"open {url} in default browser.")
 
     @classmethod
-    def from_profile_region(cls, profile: str, region: str):
+    def from_profile_region(cls, ui: UI, profile: str, region: str):
         return cls(
-            title=f"📝 {profile} | {region}",
-            subtitle=f"Hit 'Enter' to sign in using {profile!r} profile.",
+            title=f"📝 {ui.format_highlight(profile)} | {region}",
+            subtitle=f"Hit '{ui.Enter}' to sign in using {profile!r} profile.",
             uid=profile,
             arg=profile,
             autocomplete=f"{MenuEnum.sign_in} {profile}",
@@ -137,16 +155,16 @@ class SignInProfileItem(ProfileItem):
 
 @dataclasses.dataclass
 class SwitchRoleProfileItem(ProfileItem):
-    def enter_handler(self, ui: zf.UI):
+    def enter_handler(self, ui: UI):
         url = get_switch_role_url(profile=self.arg)
         zf.open_url(url)
         print(f"open {url} in default browser.")
 
     @classmethod
-    def from_profile_region(cls, profile: str, region: str):
+    def from_profile_region(cls, ui: UI, profile: str, region: str):
         return cls(
-            title=f"📝 {profile} | {region}",
-            subtitle=f"Hit 'Enter' to switch to IAM role defined in {profile!r}.",
+            title=f"📝 {ui.format_highlight(profile)} | {region}",
+            subtitle=f"Hit '{ui.Enter}' to switch to IAM role defined in {profile!r}.",
             uid=profile,
             arg=profile,
             autocomplete=f"{MenuEnum.switch_role} {profile}",
@@ -160,43 +178,43 @@ class MenuEnum:
     switch_role = "switch_role"
 
 
-def show_top_menu(query: str, ui: zf.UI):
+def show_top_menu(query: str, ui: UI):
     return [
         SetProfileItem(
             title="📝 Set an named profile as default",
-            subtitle="Hit 'Tab' to search profile",
+            subtitle=f"Hit '{ui.Tab}' to search profile",
             uid="uid-1",
             autocomplete=f"{MenuEnum.set_profile_as_default} ",
         ),
         SetProfileItem(
             title="🔐 Do CLI MFA Authentication",
-            subtitle="Hit 'Tab' to select a base profile",
+            subtitle=f"Hit '{ui.Tab}' to select a base profile",
             uid="uid-2",
             autocomplete=f"{MenuEnum.mfa_auth} ",
         ),
         SetProfileItem(
             title="🌐 Sign in to AWS Console",
-            subtitle="Hit 'Tab' to select a profile to sign in",
+            subtitle=f"Hit '{ui.Tab}' to select a profile to sign in",
             uid="uid-3",
             autocomplete=f"{MenuEnum.sign_in} ",
         ),
         SetProfileItem(
             title="🔄 Switch Role in to AWS Console",
-            subtitle="Hit 'Tab' to select a profile to switch to",
+            subtitle=f"Hit '{ui.Tab}' to select a profile to switch to",
             uid="uid-4",
             autocomplete=f"{MenuEnum.switch_role} ",
         ),
     ]
 
 
-def set_profile_as_default_handler(query: str, ui: zf.UI):
+def set_profile_as_default_handler(query: str, ui: UI):
     q = zf.Query.from_str(query)
     sorted_pairs = get_sorted_profile_region_pairs(query=" ".join(q.trimmed_parts))
     # example:
     # - ""
     # - "    "
     return [
-        SetProfileItem.from_profile_region(profile, region)
+        SetProfileItem.from_profile_region(ui, profile, region)
         for profile, region in sorted_pairs
     ]
 
@@ -262,7 +280,7 @@ def _run_mfa_auth(
 
 def mfa_auth_handler(
     query: str,
-    ui: zf.UI,
+    ui: UI,
 ) -> T.List[T.Union[MfaAuthItem, MfaHintItem]]:
     """
 
@@ -273,7 +291,7 @@ def mfa_auth_handler(
     # - ""
     # - "    "
     if len(q.trimmed_parts) == 0:
-        return MfaAuthItem.from_query(query="")
+        return MfaAuthItem.from_query(ui=ui, query="")
     elif q.trimmed_parts[0].startswith("?"):
         # sf.items.append(get_help_item())
         return []
@@ -281,15 +299,15 @@ def mfa_auth_handler(
     # - "profile_name"
     # - "profile_substr"
     elif len(q.trimmed_parts) == 1:
-        items = MfaAuthItem.from_query(query="")
+        items = MfaAuthItem.from_query(ui=ui, query="")
         profiles = [item.arg for item in items]
         if q.trimmed_parts[0] in profiles:
             return _ask_for_mfa_token(profile=q.trimmed_parts[0])
         else:
-            return MfaAuthItem.from_query(query=" ".join(q.trimmed_parts))
+            return MfaAuthItem.from_query(ui=ui, query=" ".join(q.trimmed_parts))
     elif len(q.trimmed_parts) == 2:
         profile, token = q.trimmed_parts
-        items = MfaAuthItem.from_query(query="")
+        items = MfaAuthItem.from_query(ui=ui, query="")
         profiles = [item.arg for item in items]
         # see below
         if profile in profiles:
@@ -311,44 +329,44 @@ def mfa_auth_handler(
                 return _entered_invalid_token(profile, token)
         # - "alice bob"
         else:
-            return MfaAuthItem.from_query(query=" ".join(q.trimmed_parts))
+            return MfaAuthItem.from_query(ui=ui, query=" ".join(q.trimmed_parts))
     # example:
     # - "profile sub str"
     # - "profile sub str 123456"
     elif len(q.trimmed_parts) >= 3:
-        items = MfaAuthItem.from_query(query="")
+        items = MfaAuthItem.from_query(ui=ui, query="")
         profiles = [item.arg for item in items]
         profile = q.trimmed_parts[0]
         if profile in profiles:
             return _entered_invalid_token(profile, token=" ".join(q.trimmed_parts[1:]))
         else:
-            return MfaAuthItem.from_query(query=" ".join(q.trimmed_parts))
+            return MfaAuthItem.from_query(ui=ui, query=" ".join(q.trimmed_parts))
     else:  # pragma: no cover
         raise NotImplementedError
 
 
 def sign_in_handler(
     query: str,
-    ui: zf.UI,
+    ui: UI,
 ) -> T.List[SignInProfileItem]:
     """ """
     q = zf.Query.from_str(query)
     # example:
     # - ""
     # - "    "
-    return SignInProfileItem.from_query(query=" ".join(q.trimmed_parts))
+    return SignInProfileItem.from_query(ui=ui, query=" ".join(q.trimmed_parts))
 
 
 def switch_role_handler(
     query: str,
-    ui: zf.UI,
+    ui: UI,
 ) -> T.List[SwitchRoleProfileItem]:
     """ """
     q = zf.Query.from_str(query)
     # example:
     # - ""
     # - "    "
-    return SwitchRoleProfileItem.from_query(query=" ".join(q.trimmed_parts))
+    return SwitchRoleProfileItem.from_query(ui=ui, query=" ".join(q.trimmed_parts))
 
 
 handler_mapper = {
@@ -359,7 +377,7 @@ handler_mapper = {
 }
 
 
-def handler(query: str, ui: zf.UI):
+def handler(query: str, ui: UI):
     parts = query.split(" ", 1)
     if len(parts) == 1:
         return show_top_menu(query, ui)
@@ -371,7 +389,7 @@ def handler(query: str, ui: zf.UI):
 def run_ui():
     zf.debugger.reset()
     zf.debugger.enable()
-    ui = zf.UI(handler=handler, capture_error=False)
+    ui = UI(handler=handler, capture_error=False)
     ui.run()
 
 

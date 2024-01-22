@@ -9,7 +9,7 @@ import dataclasses
 from pathlib import Path
 import configparser
 
-from atomicwrites import atomic_write
+from pathlib_mate import Path as PathlibMatePath
 from commentedconfigparser import CommentedConfigParser
 
 from .paths import path_config, path_credentials
@@ -284,10 +284,10 @@ class AWSCliConfig:
 
         # update ~/.aws/config and ~/.aws/credentials file
         if flag_is_config_changed:
-            with atomic_write(f"{self.path_config}", overwrite=True) as f:
+            with PathlibMatePath(self.path_config).atomic_open("w", overwrite=True) as f:
                 config.write(f)
 
-        with atomic_write(f"{self.path_credentials}", overwrite=True) as f:
+        with PathlibMatePath(self.path_credentials).atomic_open("w", overwrite=True) as f:
             credentials.write(f)
 
         return config, credentials

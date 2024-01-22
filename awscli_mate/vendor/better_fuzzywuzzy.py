@@ -5,9 +5,12 @@ Fuzzy match utilities.
 """
 
 import typing as T
+import warnings
 import dataclasses
 
-from fuzzywuzzy import process
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    from fuzzywuzzy import process
 
 Item = T.TypeVar("Item")
 

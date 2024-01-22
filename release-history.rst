@@ -15,6 +15,16 @@ Backlog
 **Miscellaneous**
 
 
+1.1.2 (2024-01-21)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Minor Improvements**
+
+- ``python-Levenshtein`` is no longer mandatory dependencies.
+- removed ``atomicwrites`` since it is not maintained anymore.
+- add ``pathlib_mate`` as dependency to provide atomic write support.
+- add color syntax highlight in CLI.
+
+
 1.1.1 (2024-01-12)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
