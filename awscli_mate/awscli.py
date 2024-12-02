@@ -205,6 +205,7 @@ class AWSCliConfig:
         mfa_code: str,
         hours: int = 12,
         overwrite_default: bool = False,
+        mfa_arn: T.Optional[str] = None,
     ) -> T.Tuple[CommentedConfigParser, CommentedConfigParser]:  # pragma: no cover
         """
         Given a base ``${profile}``, do MFA authentication with ``mfa_code``,
@@ -215,6 +216,9 @@ class AWSCliConfig:
         :param aws_profile: The source AWS profile which has MFA enabled
         :param mfa_code: six digit MFA code
         :param hours: time-to-expire hours.
+        :param overwrite_default: whether to overwrite the default awscli profile
+        :param mfa_arn: MFA arn, if not provided, it will assume the MFA arn
+            is arn:aws:iam::{account_id}:mfa/{user_name}
         """
         # validate input
         if profile == "default":
@@ -231,9 +235,12 @@ class AWSCliConfig:
         boto_ses = boto3.session.Session(profile_name=profile)
         sts = boto_ses.client("sts")
 
-        response = sts.get_caller_identity()
-        user_arn = response["Arn"]
-        mfa_arn = user_arn.replace(":user/", ":mfa/", 1)
+        if mfa_arn is None:
+            response = sts.get_caller_identity()
+            account_id = response["Account"]
+            user_arn = response["Arn"]
+            user_name = user_arn.split("/")[-1]
+            mfa_arn = f"arn:aws:iam::{account_id}:mfa/{user_name}"
 
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sts.html#STS.Client.get_session_token
         response = sts.get_session_token(

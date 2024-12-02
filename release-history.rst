@@ -15,6 +15,13 @@ Backlog
 **Miscellaneous**
 
 
+1.1.3 (2024-12-02)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Bugfixes**
+
+- Fix a bug that the MFA feature won't work when the IAM User has IAM path. Now it assume that either user provide the MFA device ARN explicitly, either assume the MFA device ARN is ``arn:aws:iam::{account_id}:mfa/{user_name}``.
+
+
 1.1.2 (2024-01-21)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Minor Improvements**
